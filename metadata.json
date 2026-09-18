@@ -1,0 +1,6 @@
+{
+  "name": "Grimoire MTG - Sealed Deckbuilder",
+  "description": "Tomo analítico e forja de decks de Selado (MTG) para Mobile e Web com motor algorítmico e conformidade PWA.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

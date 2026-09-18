@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <rect width="100" height="100" rx="16" fill="#141311"/>
+  <rect x="2" y="2" width="96" height="96" rx="14" stroke="#332e26" stroke-width="1.5"/>
+  <!-- Central spine line with diamond and accents -->
+  <line x1="50" y1="12" x2="50" y2="24" stroke="#c2a264" stroke-width="2" stroke-linecap="round"/>
+  <polygon points="50,25 54,29 50,33 46,29" fill="#c2a264"/>
+  <circle cx="50" cy="40" r="1.5" fill="#c2a264"/>
+  <circle cx="50" cy="54" r="1.5" fill="#c2a264"/>
+  <circle cx="50" cy="62" r="1.5" fill="#c2a264"/>
+  
+  <!-- Open codex outline -->
+  <path d="M22 34 L50 20 L78 34 L78 78 L50 90 L22 78 Z" stroke="#c2a264" stroke-width="2.5" stroke-linejoin="round" fill="none"/>
+  
+  <!-- Pages inner curve lines -->
+  <path d="M30 46 C38 42 45 42 50 44" stroke="#c2a264" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
+  <path d="M50 44 C55 42 62 42 70 46" stroke="#c2a264" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
+  
+  <path d="M30 54 C38 50 45 50 50 52" stroke="#c2a264" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
+  <path d="M50 52 C55 50 62 50 70 54" stroke="#c2a264" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
+
+  <!-- Lower spine chevron -->
+  <path d="M22 78 L50 68 L78 78" stroke="#c2a264" stroke-width="2" stroke-linejoin="round"/>
+</svg>
