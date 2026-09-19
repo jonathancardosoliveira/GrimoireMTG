@@ -108,7 +108,7 @@ export const DeckAtivoView: React.FC<DeckAtivoViewProps> = ({
                 ))}
               </div>
               <span>•</span>
-              <span className="text-[#a5d6a7]">Sinergia Orzhov: 92%</span>
+              <span className="text-[#a5d6a7]">Sinergia HOB: {deck.exegesis.colorPair.synergy}%</span>
             </div>
           </div>
 

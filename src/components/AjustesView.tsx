@@ -104,7 +104,7 @@ export const AjustesView: React.FC<AjustesViewProps> = ({ onResetDefaults }) => 
               onChange={(e) => setCurveWeight(Number(e.target.value))}
               className="w-full accent-[#c2a264]"
             />
-            <span className="text-[10px] text-[#7a7365]">Penaliza mãos pesadas com muitas mágicas de custo 5+ em formatos agressivos como Bloomburrow.</span>
+            <span className="text-[10px] text-[#7a7365]">Penaliza mãos pesadas com muitas mágicas de custo 5+ no formato The Hobbit.</span>
           </div>
 
           <div>

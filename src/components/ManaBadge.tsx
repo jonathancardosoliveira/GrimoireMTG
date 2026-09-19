@@ -45,25 +45,27 @@ export const ManaBadge: React.FC<ManaBadgeProps> = ({ color, size = 'md', showLa
 export const ManaCostDisplay: React.FC<{ cost: string }> = ({ cost }) => {
   if (!cost) return null;
 
-  // Parses string like "1WB", "3BB", "2WW", "2B // 3BB"
-  const tokens = cost.match(/(\{?[WUBRGC0-9]+\}?|\/\/)/g) || [cost];
+  const tokens = cost.match(/\{[^}]+\}|\/\/|[WUBRGC0-9X]+/g) || [cost];
 
   return (
     <span className="inline-flex items-center gap-0.5">
-      {cost.split('').map((char, index) => {
-        if (char === ' ') return <span key={index} className="w-1" />;
-        if (char === '/') return <span key={index} className="text-[#998f81] text-xs font-mono">/</span>;
-        
-        if (['W', 'U', 'B', 'R', 'G', 'C'].includes(char)) {
-          return <ManaBadge key={index} color={char as ManaColor} size="sm" />;
+      {tokens.map((rawToken, index) => {
+        const token = rawToken.replace(/^\{|\}$/g, '');
+
+        if (token === '//') {
+          return <span key={`${token}-${index}`} className="text-[#998f81] text-xs font-mono">/</span>;
         }
-        
+
+        if (token.length === 1 && ['W', 'U', 'B', 'R', 'G', 'C'].includes(token)) {
+          return <ManaBadge key={`${token}-${index}`} color={token as ManaColor} size="sm" />;
+        }
+
         return (
           <span
-            key={index}
-            className="w-4 h-4 inline-flex items-center justify-center rounded-full bg-[#2b2a27] text-[#e6e2de] text-[10px] font-mono font-bold border border-[#4d463a]"
+            key={`${token}-${index}`}
+            className="min-w-4 h-4 px-0.5 inline-flex items-center justify-center rounded-full bg-[#2b2a27] text-[#e6e2de] text-[10px] font-mono font-bold border border-[#4d463a]"
           >
-            {char}
+            {token}
           </span>
         );
       })}

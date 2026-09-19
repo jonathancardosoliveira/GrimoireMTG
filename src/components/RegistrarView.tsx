@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { SealedPool, Card, ManaColor, CardRarity } from '../types';
 import { CARD_DATABASE } from '../data/cards';
+import { fetchRealCardsForSet } from '../data/scryfall';
 import { CardRow } from './CardRow';
 import { ManaBadge } from './ManaBadge';
 import { Search, Sparkles, PlusCircle, CheckCircle, PackagePlus, Zap } from 'lucide-react';
@@ -8,7 +9,7 @@ import { Search, Sparkles, PlusCircle, CheckCircle, PackagePlus, Zap } from 'luc
 interface RegistrarViewProps {
   activePool: SealedPool;
   onUpdatePoolCards: (updatedCards: Record<string, number>, newTotal: number) => void;
-  onForgeDeck: () => void;
+  onForgeDeck: (cards: Card[]) => void;
   onInspectCard: (card: Card) => void;
 }
 
@@ -22,9 +23,53 @@ export const RegistrarView: React.FC<RegistrarViewProps> = ({
   const [selectedColor, setSelectedColor] = useState<ManaColor | 'all'>('all');
   const [selectedRarity, setSelectedRarity] = useState<CardRarity | 'all'>('all');
   const [onlyInPool, setOnlyInPool] = useState(false);
+  const [liveCards, setLiveCards] = useState<Card[]>([]);
+  const [loadingCards, setLoadingCards] = useState(false);
+  const [cardsWarning, setCardsWarning] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadCards = async () => {
+      setLoadingCards(true);
+      setCardsWarning(null);
+
+      try {
+        const fetchedCards = await fetchRealCardsForSet(activePool.setCode);
+
+        if (!cancelled) {
+          setLiveCards(fetchedCards);
+        }
+      } catch (error) {
+        console.error('Failed to fetch Scryfall cards:', error);
+
+        if (!cancelled) {
+          const localCards = CARD_DATABASE.filter(c => c.setCode === activePool.setCode);
+          setLiveCards(localCards);
+          setCardsWarning(
+            localCards.length > 0
+              ? 'Não foi possível carregar as cartas em tempo real do Scryfall; usando o catálogo local da edição.'
+              : `A edição ${activePool.setCode} não foi encontrada no Scryfall. Verifique o código da edição selecionada.`
+          );
+        }
+      } finally {
+        if (!cancelled) {
+          setLoadingCards(false);
+        }
+      }
+    };
+
+    loadCards();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [activePool.setCode]);
 
   // Available cards for active set
-  const setCards = CARD_DATABASE.filter(c => c.setCode === activePool.setCode);
+  const setCards = liveCards.length > 0
+    ? liveCards
+    : CARD_DATABASE.filter(c => c.setCode === activePool.setCode);
 
   // Filter cards
   const filteredCards = setCards.filter((card) => {
@@ -128,6 +173,16 @@ export const RegistrarView: React.FC<RegistrarViewProps> = ({
             <p className="text-xs text-[#998f81] font-sans mt-0.5">
               Edição: <strong className="text-[#e6e2de]">{activePool.setName}</strong> • Adicione as 84 cartas obtidas nos 6 boosters para forjar o deck.
             </p>
+            {loadingCards && (
+              <p className="text-[10px] text-[#c2a264] font-mono mt-2">
+                Carregando cartas reais do Scryfall...
+              </p>
+            )}
+            {cardsWarning && (
+              <p className="text-[10px] text-[#f5c26b] font-sans mt-2">
+                {cardsWarning}
+              </p>
+            )}
           </div>
 
           <div className="flex items-center gap-2">
@@ -278,7 +333,7 @@ export const RegistrarView: React.FC<RegistrarViewProps> = ({
       <div className="sticky bottom-4 z-20 flex justify-end">
         <button
           id="btn-forjar-deck"
-          onClick={onForgeDeck}
+          onClick={() => onForgeDeck(setCards)}
           className="flex items-center gap-2 rounded-lg bg-[#c2a264] px-6 py-3 text-sm font-bold text-[#141311] shadow-xl hover:bg-[#d4b77d] transition transform active:scale-95 border border-[#ffdea4]/50"
         >
           <Sparkles className="w-4 h-4 text-[#141311]" />

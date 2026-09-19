@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { SealedPool, ManaColor } from '../types';
+import { MTG_SET_OPTIONS } from '../data/mtgSets';
 import { Plus, BookOpen, Layers, CheckCircle2, Clock, Trash2, ArrowRight, Sparkles, Filter } from 'lucide-react';
 import { ManaBadge } from './ManaBadge';
 
@@ -8,7 +9,7 @@ interface CompendioViewProps {
   activePoolId: string;
   onSelectPool: (poolId: string) => void;
   onOpenDeck: (deckId?: string) => void;
-  onStartNewPool: () => void;
+  onStartNewPool: (setCode?: string) => void;
   onDeletePool: (poolId: string) => void;
 }
 
@@ -22,6 +23,7 @@ export const CompendioView: React.FC<CompendioViewProps> = ({
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSet, setSelectedSet] = useState<string>('all');
+  const [newPoolSet, setNewPoolSet] = useState('HOB');
 
   const filteredPools = pools.filter((pool) => {
     const matchSearch =
@@ -37,31 +39,24 @@ export const CompendioView: React.FC<CompendioViewProps> = ({
     pools.reduce((acc, p) => acc + (p.score || 75), 0) / (pools.length || 1)
   ).toFixed(1);
 
+  const recentDecks = [...pools].slice(0, 4);
+
   return (
     <div className="space-y-6 animate-fade-in">
-      {/* Header Banner & Academic Stats */}
+      {/* Header Banner & Personal Stats */}
       <div className="bg-[#1c1a17] border border-[#332e26] rounded-lg p-5 shadow-md">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#2e2a24] pb-4">
           <div>
             <div className="flex items-center gap-2">
               <BookOpen className="w-5 h-5 text-[#c2a264]" />
               <h2 className="font-serif text-2xl font-bold text-[#e4c281]">
-                Compêndio de Selados
+                Histórico de Decks
               </h2>
             </div>
             <p className="text-xs text-[#998f81] mt-1 font-sans">
-              Histórico de pools catalogadas, forja de arquétipos e análises com o motor heurístico.
+              Veja os decks salvos e escolha o prerelease que você está jogando.
             </p>
           </div>
-
-          <button
-            id="btn-nova-pool"
-            onClick={onStartNewPool}
-            className="flex items-center justify-center gap-2 rounded bg-[#c2a264] px-4 py-2 text-xs font-semibold text-[#141311] hover:bg-[#d4b77d] transition shadow font-sans self-start md:self-auto"
-          >
-            <Plus className="w-4 h-4" />
-            <span>+ Nova Pool Selada</span>
-          </button>
         </div>
 
         {/* Metric Cards */}
@@ -81,6 +76,84 @@ export const CompendioView: React.FC<CompendioViewProps> = ({
         </div>
       </div>
 
+      <div className="bg-[#1c1a17] border border-[#2e2a24] rounded-lg p-4">
+        <div className="flex items-center justify-between gap-3 mb-3">
+          <div>
+            <h3 className="font-serif text-xl text-[#e4c281]">Prerelase</h3>
+            <p className="text-[11px] text-[#998f81]">Escolha o produto que você está jogando para carregar apenas as cartas do pacote.</p>
+          </div>
+
+          <select
+            value={newPoolSet}
+            onChange={(event) => setNewPoolSet(event.target.value)}
+            className="bg-[#141311] border border-[#332e26] text-[#e6e2de] text-xs rounded px-2 py-2 focus:outline-none focus:border-[#c2a264]"
+            aria-label="Selecionar prerelease"
+          >
+            {MTG_SET_OPTIONS.map((set) => (
+              <option key={set.code} value={set.code}>
+                {set.name} [{set.code}]
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          {MTG_SET_OPTIONS.map((set) => (
+            <button
+              key={set.code}
+              onClick={() => {
+                setNewPoolSet(set.code);
+                onStartNewPool(set.code);
+              }}
+              className={`rounded border p-4 text-left transition ${
+                newPoolSet === set.code
+                  ? 'border-[#c2a264] bg-[#2b2a27] text-[#e4c281]'
+                  : 'border-[#332e26] bg-[#141311] text-[#e6e2de] hover:border-[#7a7365]'
+              }`}
+            >
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <div className="font-serif text-lg font-bold">{set.name}</div>
+                  <div className="text-[10px] uppercase tracking-[0.2em] text-[#998f81] mt-1">{set.code}</div>
+                </div>
+                <ArrowRight className="w-4 h-4" />
+              </div>
+              <p className="text-[11px] text-[#998f81] mt-2">Cartas do prerelease {set.code} e pool do evento.</p>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="bg-[#1c1a17] border border-[#2e2a24] rounded-lg p-4">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="font-serif text-xl text-[#e4c281]">Decks salvos</h3>
+          <button
+            onClick={() => onStartNewPool(newPoolSet)}
+            className="flex items-center justify-center gap-2 rounded bg-[#c2a264] px-3 py-2 text-xs font-semibold text-[#141311] hover:bg-[#d4b77d] transition shadow font-sans"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Novo deck</span>
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          {recentDecks.map((pool) => (
+            <button
+              key={pool.id}
+              onClick={() => onSelectPool(pool.id)}
+              className="rounded border border-[#332e26] bg-[#141311] p-3 text-left hover:border-[#c2a264] transition"
+            >
+              <div className="flex items-center justify-between gap-2">
+                <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#c2a264]">{pool.setCode}</span>
+                <span className="text-[10px] text-[#998f81]">{pool.totalCount} cartas</span>
+              </div>
+              <div className="font-serif text-lg mt-2 text-[#e6e2de]">{pool.title}</div>
+              <div className="text-[11px] text-[#998f81] mt-1">{pool.setName}</div>
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Filters Bar */}
       <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
         <div className="relative w-full sm:w-72">
@@ -97,11 +170,7 @@ export const CompendioView: React.FC<CompendioViewProps> = ({
           <span className="text-[11px] text-[#7a7365] flex items-center gap-1 flex-shrink-0">
             <Filter className="w-3 h-3" /> Edição:
           </span>
-          {[
-            { id: 'all', label: 'Todas' },
-            { id: 'BLB', label: 'Bloomburrow [BLB]' },
-            { id: 'DSK', label: 'Duskmourn [DSK]' },
-          ].map((set) => (
+          {[{ id: 'all', label: 'Todas' }, ...MTG_SET_OPTIONS.map((set) => ({ id: set.code, label: `${set.name} [${set.code}]` }))].map((set) => (
             <button
               key={set.id}
               onClick={() => setSelectedSet(set.id)}

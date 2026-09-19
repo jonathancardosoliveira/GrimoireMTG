@@ -1,6 +1,6 @@
 import React from 'react';
 import { ViewTab, ViewportMode } from '../types';
-import { BookOpen, PlusCircle, Layers, Settings, Smartphone, Monitor, Sparkles } from 'lucide-react';
+import { BookOpen, PlusCircle, Smartphone, Monitor, Sun, Moon } from 'lucide-react';
 import { PWAInstallButton } from './PWAInstallButton';
 
 interface NavbarProps {
@@ -9,6 +9,8 @@ interface NavbarProps {
   viewportMode: ViewportMode;
   onViewportModeChange: (mode: ViewportMode) => void;
   activePoolCode?: string;
+  isLightMode: boolean;
+  onToggleTheme: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -17,12 +19,12 @@ export const Navbar: React.FC<NavbarProps> = ({
   viewportMode,
   onViewportModeChange,
   activePoolCode = '#0094-ARC',
+  isLightMode,
+  onToggleTheme,
 }) => {
   const navItems: { id: ViewTab; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
     { id: 'compendio', label: 'Compêndio', icon: BookOpen },
     { id: 'registrar', label: 'Registrar', icon: PlusCircle },
-    { id: 'deck_ativo', label: 'Deck Ativo', icon: Layers },
-    { id: 'ajustes', label: 'Ajustes & Portabilidade', icon: Settings },
   ];
 
   return (
@@ -110,6 +112,14 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
 
           <PWAInstallButton className="hidden sm:flex" />
+          <button
+            onClick={onToggleTheme}
+            className="p-2 rounded-md border border-[#332e26] text-[#c2a264] hover:bg-[#211f1d] transition"
+            title={isLightMode ? 'Ativar modo escuro' : 'Ativar modo claro'}
+            aria-label={isLightMode ? 'Ativar modo escuro' : 'Ativar modo claro'}
+          >
+            {isLightMode ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
+          </button>
         </div>
       </div>
     </header>

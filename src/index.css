@@ -10,12 +10,62 @@
     font-family: var(--font-inter);
     background-color: #141311;
     color: #e6e2de;
+    transition: background-color 180ms ease, color 180ms ease;
     -webkit-tap-highlight-color: transparent;
   }
 
   h1, h2, h3, .font-archaic {
     font-family: var(--font-garamond);
   }
+}
+
+/* The existing views use a shared palette; these selectors keep the theme switch global. */
+.theme-light {
+  background-color: #f5f3ef !important;
+  color: #27231e !important;
+}
+
+.theme-light [class*="bg-[#141311]"],
+.theme-light [class*="bg-[#1c1a17]"],
+.theme-light [class*="bg-[#211f1d]"],
+.theme-light [class*="bg-[#26231f]"],
+.theme-light [class*="bg-[#2b2a27]"] {
+  background-color: #ffffff !important;
+}
+
+.theme-light [class*="text-[#e6e2de]"],
+.theme-light [class*="text-[#e4c281]"],
+.theme-light [class*="text-[#d0c5b5]"] {
+  color: #27231e !important;
+}
+
+.theme-light [class*="text-[#998f81]"],
+.theme-light [class*="text-[#7a7365]"] {
+  color: #756d62 !important;
+}
+
+.theme-light [class*="border-[#332e26]"],
+.theme-light [class*="border-[#2e2a24]"],
+.theme-light [class*="border-[#4d463a]"] {
+  border-color: #ded8cf !important;
+}
+
+.theme-light [class*="border-[#c2a264]"] {
+  border-color: #a9843f !important;
+}
+
+.theme-light input,
+.theme-light select {
+  color: #27231e !important;
+  background-color: #ffffff !important;
+}
+
+.theme-light ::-webkit-scrollbar-track {
+  background: #eeeae4;
+}
+
+.theme-light ::-webkit-scrollbar-thumb {
+  background: #cfc7bb;
 }
 
 /* Custom scrollbars for arcane ledger aesthetic */

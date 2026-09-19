@@ -41,7 +41,7 @@ export interface SealedPool {
   id: string;
   code: string; // e.g. "#0094-ARC"
   title: string;
-  setCode: string; // "BLB", "DSK"
+  setCode: string; // "HOB"
   setName: string;
   status: PoolStatus;
   cards: Record<string, number>; // cardId -> count

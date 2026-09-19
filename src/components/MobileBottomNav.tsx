@@ -1,6 +1,6 @@
 import React from 'react';
 import { ViewTab } from '../types';
-import { BookOpen, PlusCircle, Layers, Settings } from 'lucide-react';
+import { BookOpen, PlusCircle } from 'lucide-react';
 
 interface MobileBottomNavProps {
   activeTab: ViewTab;
@@ -15,13 +15,11 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
   const items: { id: ViewTab; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
     { id: 'compendio', label: 'Compêndio', icon: BookOpen },
     { id: 'registrar', label: 'Registrar', icon: PlusCircle },
-    { id: 'deck_ativo', label: 'Deck Ativo', icon: Layers },
-    { id: 'ajustes', label: 'Ajustes', icon: Settings },
   ];
 
   return (
     <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#141311]/95 backdrop-blur-lg border-t border-[#332e26] safe-bottom shadow-2xl">
-      <div className="grid grid-cols-4 h-14">
+      <div className="grid grid-cols-2 h-14">
         {items.map((item) => {
           const Icon = item.icon;
           const isActive = activeTab === item.id;

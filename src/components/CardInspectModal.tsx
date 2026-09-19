@@ -96,7 +96,7 @@ export const CardInspectModal: React.FC<CardInspectModalProps> = ({ card, onClos
                 Pareamento Heurístico
               </span>
               <span className="text-[11px] text-[#e4c281] font-medium">
-                Alta prioridade no arquétipo Orzhov (WB)
+                Prioridade calculada pelo arquétipo HOB
               </span>
             </div>
           </div>

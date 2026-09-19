@@ -15,17 +15,24 @@ import { DeckAtivoView } from './components/DeckAtivoView';
 import { AjustesView } from './components/AjustesView';
 import { CardInspectModal } from './components/CardInspectModal';
 import { OfflineIndicator } from './components/OfflineIndicator';
+import { DEFAULT_MTG_SET, getSetLabel } from './data/mtgSets';
 import { Sparkles, Dna, Cpu } from 'lucide-react';
 
 const STORAGE_KEY_POOLS = 'grimoire_mtg_pools_v1';
 const STORAGE_KEY_DECK = 'grimoire_mtg_deck_v1';
+const STORAGE_KEY_THEME = 'grimoire_mtg_theme_v1';
 
 export default function App() {
   const [pools, setPools] = useState<SealedPool[]>(() => {
     const saved = localStorage.getItem(STORAGE_KEY_POOLS);
     if (saved) {
       try {
-        return JSON.parse(saved);
+        const savedPools = JSON.parse(saved) as SealedPool[];
+        return savedPools.map((pool) =>
+          pool.setCode === 'RFR'
+            ? { ...pool, setCode: DEFAULT_MTG_SET, setName: `${getSetLabel(DEFAULT_MTG_SET)} [${DEFAULT_MTG_SET}]` }
+            : pool
+        );
       } catch (e) {
         console.error('Failed to parse saved pools:', e);
       }
@@ -34,7 +41,7 @@ export default function App() {
   });
 
   const [activePoolId, setActivePoolId] = useState<string>(() => {
-    return pools[0]?.id || 'pool-blb-01';
+    return pools[0]?.id || 'pool-hob-01';
   });
 
   const [deck, setDeck] = useState<Deck>(() => {
@@ -49,9 +56,11 @@ export default function App() {
     return INITIAL_DECK;
   });
 
-  const [activeTab, setActiveTab] = useState<ViewTab>('deck_ativo');
+  const [activeTab, setActiveTab] = useState<ViewTab>('compendio');
   const [viewportMode, setViewportMode] = useState<ViewportMode>('responsive');
+  const [isLightMode, setIsLightMode] = useState(() => localStorage.getItem(STORAGE_KEY_THEME) === 'light');
   const [inspectedCard, setInspectedCard] = useState<Card | null>(null);
+  const [availableCards, setAvailableCards] = useState<Card[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationStep, setGenerationStep] = useState('');
 
@@ -64,21 +73,28 @@ export default function App() {
     localStorage.setItem(STORAGE_KEY_DECK, JSON.stringify(deck));
   }, [deck]);
 
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY_THEME, isLightMode ? 'light' : 'dark');
+  }, [isLightMode]);
+
   const activePool = pools.find(p => p.id === activePoolId) || pools[0];
 
   const handleSelectPool = (poolId: string) => {
     setActivePoolId(poolId);
   };
 
-  const handleStartNewPool = () => {
+  const handleStartNewPool = (setCode: string = DEFAULT_MTG_SET) => {
+    const normalizedSet = setCode?.trim().toUpperCase() || DEFAULT_MTG_SET;
     const newId = `pool-${Date.now()}`;
     const codeNum = Math.floor(1000 + Math.random() * 9000);
+    const setName = `${getSetLabel(normalizedSet)} [${normalizedSet}]`;
+
     const newPool: SealedPool = {
       id: newId,
       code: `#${codeNum}-ARC`,
       title: 'Nova Pool Selada',
-      setCode: 'BLB',
-      setName: 'Bloomburrow [BLB]',
+      setCode: normalizedSet,
+      setName,
       status: 'rascunho',
       totalCount: 0,
       cards: {},
@@ -115,7 +131,8 @@ export default function App() {
     );
   };
 
-  const handleForgeDeck = () => {
+  const handleForgeDeck = (cards: Card[]) => {
+    setAvailableCards(cards);
     setIsGenerating(true);
     setGenerationStep('Iniciando Motor Genético e Mapeamento de Sinergias...');
 
@@ -128,7 +145,7 @@ export default function App() {
     }, 1000);
 
     setTimeout(() => {
-      const generated = buildOptimizedDeck(activePool, { generationsCount: 240 });
+      const generated = buildOptimizedDeck(activePool, { generationsCount: 240 }, cards);
       setDeck(generated);
 
       // Update pool score
@@ -153,7 +170,7 @@ export default function App() {
   const handleRegenerateSeed = () => {
     const regenerated = buildOptimizedDeck(activePool, {
       generationsCount: Math.floor(220 + Math.random() * 60),
-    });
+    }, availableCards);
     setDeck(regenerated);
   };
 
@@ -167,7 +184,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#141311] text-[#e6e2de] flex flex-col antialiased">
+    <div className={`min-h-screen bg-[#141311] text-[#e6e2de] flex flex-col antialiased ${isLightMode ? 'theme-light' : 'theme-dark'}`}>
       <OfflineIndicator />
 
       {/* Top Brand Navigation */}
@@ -177,6 +194,8 @@ export default function App() {
         viewportMode={viewportMode}
         onViewportModeChange={setViewportMode}
         activePoolCode={activePool?.code}
+        isLightMode={isLightMode}
+        onToggleTheme={() => setIsLightMode((current) => !current)}
       />
 
       {/* Main Viewport Workspace */}
@@ -226,9 +245,6 @@ export default function App() {
                   />
                 )}
 
-                {activeTab === 'ajustes' && (
-                  <AjustesView onResetDefaults={handleResetDefaults} />
-                )}
               </div>
 
               {/* Mobile Frame Bottom Navigation */}
@@ -276,9 +292,6 @@ export default function App() {
               />
             )}
 
-            {activeTab === 'ajustes' && (
-              <AjustesView onResetDefaults={handleResetDefaults} />
-            )}
           </div>
         )}
       </main>
